@@ -8,6 +8,7 @@ router.route("/")
 router.route("/:id")
     .get(hotel_controller.getHotelById)
 
-router.route('/feedback')
+router.route('/filter')
+    .get(hotel_controller.filter)
 
 module.exports = router
