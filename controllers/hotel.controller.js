@@ -15,7 +15,7 @@ const createHotel =  async (req, res) => {
                 address: req.body.address,
                 city: req.body.city,
                 postalCode: req.body.postalCode,
-            },
+            }, 
             amenities: {
                 wifiInLobby: req.body.wifiInLobby,
                 wifiInRoom: req.body.wifiInRoom,
@@ -59,6 +59,7 @@ const createRating = async (req, res) => {
 const createFeedback = async (req, res) => {
     try {
         console.log(req.body);
+        
         const hotelId = req.body.hotelId;
         const feedbackId = req.body.feedbackId;
         const feedbackJson = {
