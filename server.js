@@ -13,6 +13,7 @@ app.use(express.json());
 
 app.use(express.urlencoded({ extended: true }));
 app.use('/hotel', require('./routes/hotel.route'))
+app.use('/reservation', require('./routes/reservation.route'))
 
 const PORT = 3000;
 app.listen(PORT, () => {
