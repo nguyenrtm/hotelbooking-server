@@ -14,8 +14,8 @@ router.route("/createFeedback")
 router.route("/createRating")
     .post(hotel_controller.createRating)
 
-router.route('/filter')
-    .get(hotel_controller.filter)
+router.route('/search')
+    .get(hotel_controller.search)
 
 router.route("/readHotel/:id")
     .get(hotel_controller.getHotelById)
