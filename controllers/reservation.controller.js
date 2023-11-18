@@ -1,7 +1,6 @@
 const db = require('../config/db')
 
 const create_reservation = async (req, res) => {
-    // need user_id, hotel_id, rooms and theirs quantity, and check_in, check_out
     try {
         console.log(req.body)
         const body = req.body;
@@ -24,7 +23,6 @@ const create_reservation = async (req, res) => {
 }
 
 const get_history = async (req, res) => {
-    // need user_id
     try {
         const id = req.params.id;
         const snapshot = await db.collection("reservations").where("user_id", "==", id.toString()).get();
@@ -32,7 +30,6 @@ const get_history = async (req, res) => {
         snapshot.forEach(doc => {
             responseArr.push(doc.data());
         });
-        console.log(responseArr)
         res.send(responseArr);
     } catch (error) {
         res.send(error)
@@ -40,7 +37,6 @@ const get_history = async (req, res) => {
 }
 
 const cancel_reservation = async (req, res) => {
-    // need reservation_id
     try {
         const id = req.params.id;
         const document = db.collection("reservations").doc(id);
@@ -52,19 +48,34 @@ const cancel_reservation = async (req, res) => {
 }
 
 const create_feedback = async (req, res) => {
-    // need reservation_id, user_id, hotel_id, feedback
     try {
-        console.log(req.body);
         const body = req.body;
-        const feedbackJson = {
-            stars: body.stars,
-            feedback: body.feedback,
-        };
-        
+        const reservation = await db.collection("reservations").doc(body.reservation_id).get();
+        console.log(reservation.data().hotel_id)
+        const hotel = await db.collection("hotels").doc(reservation.data().hotel_id).get();
+        const ratings = hotel.data().ratings;
         // todos: recalculate hotel's rating
+        for (let i in body.ratings) {
+            body.ratings[i] = parseFloat(body.ratings[i]);
+            console.log(body.ratings[i])
+            ratings[i] = (ratings[i] * ratings.count + body.ratings[i]) / (ratings.count + 1);
+        }
+        ratings.count += 1;
+        console.log(ratings)
+        const response = await db.collection("hotels").doc(reservation.data().hotel_id).update({ratings: ratings})
         
-        const response = db.collection("reservations").doc(body.reservation_id).set(feedbackJson, {merge: true})
-        res.send(response);
+        await db
+            .collection("reservations")
+            .doc(body.reservation_id)
+            .set(
+                {feedback: {
+                    comment: body.comment,
+                    ratings: body.ratings
+                }},
+                {merge: true}
+            )
+        
+        res.send(response)
     } catch (error) {
         res.send(error);
     }

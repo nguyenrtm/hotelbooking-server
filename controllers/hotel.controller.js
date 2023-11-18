@@ -1,76 +1,23 @@
 const db = require('../config/db')
 
 const getAll = async (req, res) => {
-    res.send("Get All!")
+    try {
+        const snapshot = await db.collection("hotels").get();
+        let responseArr = [];
+        snapshot.forEach(doc => {
+            const data = doc.data();
+            data.id = doc.id;
+            responseArr.push(data);
+        });
+        res.send(responseArr);
+    } catch (err) {
+        res.send(err);
+    }
 }
 
 const createHotel =  async (req, res) => {
     try {
-        console.log(req.body);
-        const id = req.body.id;
-        const hotelJson = {
-            name: req.body.name,
-            address: req.body.address,
-            location: {
-                address: req.body.address,
-                city: req.body.city,
-                postalCode: req.body.postalCode,
-            },
-            amenities: {
-                wifiInLobby: req.body.wifiInLobby,
-                wifiInRoom: req.body.wifiInRoom,
-                spa: req.body.spa,
-                telephone: req.body.telephone,
-                pool: req.body.pool,
-                pet: req.body.pet
-            },
-            contact: req.body.contact,
-        };
-
-        const response = db.collection("hotels").doc(id).set(hotelJson);
-        res.send(response);
-    } catch (error) {
-        res.send(error);
-    }
-};
-
-const createRating = async (req, res) => {
-    try {
-        console.log(req.body);
-        const hotelId = req.body.hotelId;
-        const ratingId = req.body.ratingId;
-        const ratingJson = {
-            rating: req.body.rating,
-            valueForMoney: req.body.valueForMoney,
-            cleanliness: req.body.cleanliness,
-            building: req.body.building,
-            comfort: req.body.comfort
-        };
-
-        const response = db.collection("hotels").doc(hotelId)
-                         .collection("ratings").doc(ratingId)
-                         .set(ratingJson);
-        res.send(response);
-    } catch (error) {
-        res.send(error);
-    }
-};
-
-const createFeedback = async (req, res) => {
-    try {
-        console.log(req.body);
-        const hotelId = req.body.hotelId;
-        const feedbackId = req.body.feedbackId;
-        const feedbackJson = {
-            name: req.body.name,
-            feedback: req.body.feedback,
-            month: req.body.month,
-            year: req.body.year
-        };
-
-        const response = db.collection("hotels").doc(hotelId)
-                            .collection("feedbacks").doc(feedbackId)
-                            .set(feedbackJson);
+        const response = db.collection("hotels").add(req.body);
         res.send(response);
     } catch (error) {
         res.send(error);
@@ -88,36 +35,6 @@ const getHotelById = async (req, res) => {
         res.send(error);
     }
 }
-
-const getFeedbackByHotelId = async (req, res) => {
-    try {
-        const id = req.params.id;
-        const document = db.collection("hotels").doc(id).collection("feedbacks");
-        const snapshot = await document.get();
-        let responseArr = [];
-        snapshot.forEach(doc => {
-            responseArr.push(doc.data());
-        });
-        res.send(responseArr);
-    } catch (error) {
-        res.send(error);
-    }
-};
-
-const getRatingByHotelId = async (req, res) => {
-    try {
-        const id = req.params.id;
-        const document = db.collection("hotels").doc(id).collection("ratings");
-        const snapshot = await document.get();
-        let responseArr = [];
-        snapshot.forEach(doc => {
-            responseArr.push(doc.data());
-        });
-        res.send(responseArr);
-    } catch (error) {
-        res.send(error);
-    }
-};
 
 const search = async (req, res) => {
     try {
@@ -163,7 +80,7 @@ const search = async (req, res) => {
             }
             console.log(room_quantity)
             console.log(ppl_quantity)
-            if (room_quantity >= req.body.room_quantity && ppl_quantity >= req.body.ppl_quantity) {
+            if (room_quantity >= req.body.room_quantity && ppl_quantity >= req.body.ppl_quantity || hotels[i].id === req.body.hotel_id) {
                 responseArr.push(dummy)
             }
         }
@@ -177,10 +94,6 @@ const search = async (req, res) => {
 module.exports = {
     getAll,
     createHotel,
-    createRating,
-    createFeedback,
     getHotelById,
-    getFeedbackByHotelId,
-    getRatingByHotelId,
     search
 }
