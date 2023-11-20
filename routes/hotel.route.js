@@ -14,4 +14,7 @@ router.route('/search')
 router.route("/:id")
     .get(hotel_controller.getHotelById)
 
+router.route('/:id/feedbacks')
+    .get(hotel_controller.getFeedbacks)
+
 module.exports = router

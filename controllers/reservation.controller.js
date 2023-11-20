@@ -28,7 +28,9 @@ const get_history = async (req, res) => {
         const snapshot = await db.collection("reservations").where("user_id", "==", id.toString()).get();
         let responseArr = [];
         snapshot.forEach(doc => {
-            responseArr.push(doc.data());
+            const data = doc.data();
+            data.id = doc.id;
+            responseArr.push(data);
         });
         res.send(responseArr);
     } catch (error) {
@@ -81,26 +83,9 @@ const create_feedback = async (req, res) => {
     }
 }
 
-const get_feedback = async (req, res) => {
-    try {
-        const id = req.params.id;
-        const document = db.collection("reservations").where("hotel_id", "==", id);
-        const snapshot = await document.get();
-        let responseArr = [];
-        snapshot.forEach(doc => {
-            if (doc.data().feedback)
-                responseArr.push(doc.data());
-        });
-        res.send(responseArr);
-    } catch (error) {
-        res.send(error);
-    }
-}
-
 module.exports = {
     create_reservation,
     get_history,
     cancel_reservation,
     create_feedback,
-    get_feedback
 }

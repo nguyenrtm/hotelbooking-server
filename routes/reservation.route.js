@@ -13,7 +13,4 @@ router.route('/cancel/:id')
 router.route('/createFeedback')
     .post(reservation_controller.create_feedback)
 
-router.route('/getFeedback/:id')
-    .get(reservation_controller.get_feedback)
-
 module.exports = router
