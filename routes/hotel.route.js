@@ -8,22 +8,10 @@ router.route("/")
 router.route("/create")
     .post(hotel_controller.createHotel)
 
-router.route("/createFeedback")
-    .post(hotel_controller.createFeedback)
+router.route('/search')
+    .get(hotel_controller.search)
 
-router.route("/createRating")
-    .post(hotel_controller.createRating)
-
-router.route('/filter')
-    .get(hotel_controller.filter)
-
-router.route("/readHotel/:id")
+router.route("/:id")
     .get(hotel_controller.getHotelById)
-
-router.route("/readFeedbackHotel/:id")
-    .get(hotel_controller.getFeedbackByHotelId)
-
-router.route("/readRatingHotel/:id")
-    .get(hotel_controller.getRatingByHotelId)
 
 module.exports = router
