@@ -14,8 +14,12 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use('/hotel', require('./routes/hotel.route'))
 app.use('/reservation', require('./routes/reservation.route'))
+app.use('/user', require('./routes/user.route'))
+app.use('/cities', require('./routes/cities.route'))
 
 const PORT = 3000;
 app.listen(PORT, () => {
     console.log(`Server is running on port ${PORT}`);
 });
+
+module.exports = app;
