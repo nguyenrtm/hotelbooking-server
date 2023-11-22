@@ -1,4 +1,4 @@
-const db = require('../config/db')
+const db = require('../config/db');
 
 const get_all = async (req, res) => {
     try {
@@ -12,6 +12,26 @@ const get_all = async (req, res) => {
         res.send(responseArr);
     } catch (err) {
         res.send(err);
+    }
+};
+
+const get_city = async (req, res) => {
+    try {
+        const id = req.params.id;
+        let responseArr = [];
+        const snapshot = await db.collection("cities").doc(id).get();
+        const restaurants = await db.collection("cities").doc(id).collection("restaurants").get();
+        const todos = await db.collection("cities").doc(id).collection("todos").get();
+        const transportations = await db.collection("cities").doc(id).collection("transportations").get();
+        const alerts = await db.collection("cities").doc(id).collection("alerts").get();
+        responseArr.push(snapshot.data());
+        responseArr.push(restaurants.docs.map(doc => doc.data()));
+        responseArr.push(todos.docs.map(doc => doc.data()));
+        responseArr.push(transportations.docs.map(doc => doc.data()));
+        responseArr.push(alerts.docs.map(doc => doc.data()));
+        res.send(responseArr);
+    } catch (error) {
+        res.send(error);
     }
 };
 
@@ -69,16 +89,6 @@ const add_alert = async (req, res) => {
         };
         const response = document.collection("alerts").add(alertJson);
         res.send(response);
-    } catch (error) {
-        res.send(error);
-    }
-};
-
-const get_city = async (req, res) => {
-    try {
-        const id = req.params.id;
-        const snapshot = await db.collection("cities").doc(id).get();
-        res.send(snapshot.data());
     } catch (error) {
         res.send(error);
     }

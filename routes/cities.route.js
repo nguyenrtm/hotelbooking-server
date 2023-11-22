@@ -6,7 +6,7 @@ router.route('/find')
 
 router.route('/find/:id')
     .get(cities_controller.get_city)
-
+    
 router.route('/create')
     .post(cities_controller.create_city)
 
