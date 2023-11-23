@@ -1,31 +1,45 @@
 const db = require('../config/db')
 
-const getUser = async (req, res) => {
+const get_all = async (req, res) => {
     try {
-        const id = req.params.id;
-        const snapshot = await db.collection("users").doc(id).get();
-        res.send(snapshot.data());
+        const response = await db.collection('users').get();
+        let users = [];
+        response.forEach(doc => {
+            let user = doc.data();
+            user.id = doc.id;
+            users.push(user);
+        });
+        res.send(users);
     } catch (error) {
         res.send(error);
     }
 }
 
-const createUser = async (req, res) => {
+const get_user = async (req, res) => {
     try {
-        console.log(req.body);
+        const uid = req.params.id;
+        const response = await db.collection('users').doc(uid).get();
+        res.send(response.data());
+    } catch (error) {
+        res.send(error);
+    }
+};
+
+const create_user = async (req, res) => {
+    try {
         const userJson = {
-            name: req.body.name
+            uid: req.params.id
         };
 
-        const response =  db.collection("users").add(userJson);
+        const response =  db.collection("users").doc(req.params.id).set(userJson);
         res.send(response);
-
     } catch (error) {
         res.send(error);
     }
 };
 
 module.exports = {
-    getUser,
-    createUser
+    get_all,
+    get_user,
+    create_user
 };

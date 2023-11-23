@@ -41,7 +41,9 @@ const add_restaurant = async (req, res) => {
         const document = db.collection("cities").doc(id);
         const restaurantJson = {
             name: req.body.name,
-            address: req.body.address
+            image: req.body.image,
+            address: req.body.address,
+            rating: req.body.rating
         };
         const response = document.collection("restaurants").add(restaurantJson);
         res.send(response);
@@ -56,7 +58,9 @@ const add_transportation = async (req, res) => {
         const document = db.collection("cities").doc(id);
         const todoJson = {
             content: req.body.content,
+            image: req.body.image,
             address: req.body.address,
+            rating: req.body.rating
         };
         const response = document.collection("transportations").add(todoJson);
         res.send(response);
@@ -71,7 +75,9 @@ const add_todo = async (req, res) => {
         const document = db.collection("cities").doc(id);
         const todoJson = {
             content: req.body.content,
+            image: req.body.image,
             address: req.body.address,
+            rating: req.body.rating
         };
         const response = document.collection("todos").add(todoJson);
         res.send(response);
