@@ -6,6 +6,18 @@ router.route('/find')
 
 router.route('/find/:id')
     .get(cities_controller.get_city)
+
+router.route('/restaurant/:id')
+    .get(cities_controller.get_restaurant)
+
+router.route('/todo/:id')
+    .get(cities_controller.get_todo)
+
+router.route('/transportation/:id')
+    .get(cities_controller.get_transportation)
+
+router.route('/alert/:id')
+    .get(cities_controller.get_alert)
     
 router.route('/create')
     .post(cities_controller.create_city)

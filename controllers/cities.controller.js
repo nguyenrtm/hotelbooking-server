@@ -35,6 +35,74 @@ const get_city = async (req, res) => {
     }
 };
 
+const get_restaurant = async (req, res) => {
+    try {
+        const id = req.params.id;
+        const snapshot = await db.collection("cities").doc(id)
+            .collection("restaurants").get();
+        let responseArr = [];
+        snapshot.forEach(doc => {
+            const data = doc.data();
+            data.id = doc.id;
+            responseArr.push(data);
+        });
+        res.send(responseArr);
+    } catch (error) {
+        res.send(error);
+    }
+}
+
+const get_todo = async (req, res) => {
+    try {
+        const id = req.params.id;
+        const snapshot = await db.collection("cities").doc(id)
+            .collection("todos").get();
+        let responseArr = [];
+        snapshot.forEach(doc => {
+            const data = doc.data();
+            data.id = doc.id;
+            responseArr.push(data);
+        });
+        res.send(responseArr);
+    } catch (error) {
+        res.send(error);
+    }
+}
+
+const get_transportation = async (req, res) => {
+    try {
+        const id = req.params.id;
+        const snapshot = await db.collection("cities").doc(id)
+            .collection("transportations").get();
+        let responseArr = [];
+        snapshot.forEach(doc => {
+            const data = doc.data();
+            data.id = doc.id;
+            responseArr.push(data);
+        });
+        res.send(responseArr);
+    } catch (error) {
+        res.send(error);
+    }
+}
+
+const get_alert = async (req, res) => {
+    try {
+        const id = req.params.id;
+        const snapshot = await db.collection("cities").doc(id)
+            .collection("alerts").get();
+        let responseArr = [];
+        snapshot.forEach(doc => {
+            const data = doc.data();
+            data.id = doc.id;
+            responseArr.push(data);
+        });
+        res.send(responseArr);
+    } catch (error) {
+        res.send(error);
+    }
+}
+
 const add_restaurant = async (req, res) => {
     try {
         const id = req.params.id;
@@ -116,6 +184,10 @@ const create_city = async (req, res) => {
 module.exports = {
     get_all,
     get_city,
+    get_restaurant,
+    get_todo,
+    get_transportation,
+    get_alert,
     create_city,
     add_restaurant,
     add_transportation,

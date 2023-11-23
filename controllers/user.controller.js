@@ -19,7 +19,6 @@ const get_user = async (req, res) => {
     try {
         const uid = req.params.id;
         const response = await db.collection('users').doc(uid).get();
-        res.send(response.data());
     } catch (error) {
         res.send(error);
     }
@@ -30,7 +29,6 @@ const create_user = async (req, res) => {
         const userJson = {
             uid: req.params.id
         };
-
         const response =  db.collection("users").doc(req.params.id).set(userJson);
         res.send(response);
     } catch (error) {
