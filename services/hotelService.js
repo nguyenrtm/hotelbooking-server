@@ -1,5 +1,14 @@
 const db = require("../config/db");
 
+const getHotels = async () => {
+    const snapshot = await db.collection("hotels").get();
+    let result = {};
+    snapshot.forEach(doc => {
+        result[doc.id] = doc.data();
+    });
+    return result;
+}
+
 const getHotelById = async (hotel_id) => {
     const hotel = await db.collection("hotels").doc(hotel_id).get();
     return hotel.data();
@@ -31,6 +40,7 @@ const getHotelByIdInRange = async (hotel_id, start_date, end_date) => {
 }
 
 module.exports = {
+    getHotels,
     getHotelById,
     getHotelByIdInRange
 }

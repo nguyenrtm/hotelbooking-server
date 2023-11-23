@@ -1,4 +1,6 @@
 const db = require('../config/db')
+const hotelService = require('../services/hotelService')
+const cityService = require('../services/cityService')
 
 const create_reservation = async (req, res) => {
     try {
@@ -26,10 +28,27 @@ const get_history = async (req, res) => {
     try {
         const id = req.params.id;
         const snapshot = await db.collection("reservations").where("user_id", "==", id.toString()).get();
+        const hotels = await hotelService.getHotels();
+        const cities = await cityService.getCities();
+        console.log(cities)
         let responseArr = [];
         snapshot.forEach(doc => {
             const data = doc.data();
+            data.hotel_name = hotels[data.hotel_id].name;
+            data.city_name = cities[hotels[data.hotel_id].city_id];
             data.id = doc.id;
+            data.create_date = data.create_date.toDate().toISOString().split('T')[0];
+            data.start_date = data.start_date.toDate().toISOString().split('T')[0];
+            data.end_date = data.end_date.toDate().toISOString().split('T')[0];
+            data.status = "Rated"
+            if (data.is_cancelled) {
+                data.status = "Cancelled"
+            } else if (new Date(data.end_date) > new Date()) {
+                data.status = "Active"
+            } else if (!data.feedback) {
+                data.status = "Not rated"
+            }
+            console.log(data)
             responseArr.push(data);
         });
         res.send(responseArr);
