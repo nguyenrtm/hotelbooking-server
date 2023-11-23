@@ -134,13 +134,14 @@ const getFeedbacks = async (req, res) => {
 
 const getFavourites = async (req, res) => {
     try {
+        console.log(req.query.user_id)
         const snapshot = await db.collection("favourites").where("user_id", "==", req.query.user_id).get();
         const hotels = await hotelService.getHotels();
         const cities = await cityService.getCities();
         let responseArr = [];
         snapshot.forEach(doc => {
             const data = doc.data();
-            data.id = doc.id;
+            // data.id = doc.id;
             data.hotel_name = hotels[data.hotel_id].name;
             data.city_name = cities[hotels[data.hotel_id].city_id];
             responseArr.push(data);
@@ -170,7 +171,7 @@ const deleteFavourite = async (req, res) => {
                 doc.ref.delete();
             });
         });
-        res.send(response);
+        res.send("success")
     } catch (err) {
         res.send(err)
     }
