@@ -19,6 +19,7 @@ const get_user = async (req, res) => {
     try {
         const uid = req.params.id;
         const response = await db.collection('users').doc(uid).get();
+        res.send(response)
     } catch (error) {
         res.send(error);
     }
