@@ -19,12 +19,10 @@ const get_city = async (req, res) => {
     try {
         const id = req.params.id;
         let responseArr = [];
-        const snapshot = await db.collection("cities").doc(id).get();
         const restaurants = await db.collection("cities").doc(id).collection("restaurants").get();
         const todos = await db.collection("cities").doc(id).collection("todos").get();
         const transportations = await db.collection("cities").doc(id).collection("transportations").get();
         const alerts = await db.collection("cities").doc(id).collection("alerts").get();
-        responseArr.push(snapshot.data());
         responseArr.push(restaurants.docs.map(doc => doc.data()));
         responseArr.push(todos.docs.map(doc => doc.data()));
         responseArr.push(transportations.docs.map(doc => doc.data()));
