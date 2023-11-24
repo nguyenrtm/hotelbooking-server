@@ -1,4 +1,3 @@
-const db = require("../config/db");
 const hotelService = require("./hotelService");
 const cityService = require("./cityService");
 
@@ -14,6 +13,7 @@ const create_history_response = async (snapshot, getRated = false) => {
         data.id = doc.id;
         data.hotel_name = hotels[data.hotel_id].name;
         data.city_name = cities[hotels[data.hotel_id].city_id];
+        data.hotel_imageURL = hotels[data.hotel_id].imageURL[0];
         if (!getRated || data.feedback != null)
             res.push(data);
     });

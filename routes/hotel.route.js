@@ -10,7 +10,7 @@ router.route("/create")
 router.route('/search')
     .get(hotel_controller.search)
 
-router.route('/:id/feedbacks')
+router.route('/feedbacks/:id')
     .get(hotel_controller.getFeedbacks)
 
 router.route('/favourite')

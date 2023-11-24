@@ -1,6 +1,7 @@
 const db = require('../config/db')
 const hotelService = require('../services/hotelService')
 const cityService = require('../services/cityService')
+const reservationService = require('../services/reservationService')
 
 const getAll = async (req, res) => {
     try {
@@ -118,13 +119,13 @@ const search = async (req, res) => {
 const getFeedbacks = async (req, res) => {
     try {
         const id = req.params.id;
-        const snapshot = await db.collection("reservations").where("hotel_id", "==", id.toString()).get();
-        let responseArr = [];
-        snapshot.forEach(doc => {
-            const data = doc.data();
-            data.id = doc.id;
-            responseArr.push(data);
-        });
+        console.log(id)
+        const snapshot = await db.collection("reservations")
+            .where("hotel_id", "==", id.toString())
+            .where("feedback", "!=", null)
+            .get();
+        let responseArr = await reservationService.create_history_response(snapshot);
+        
         res.send(responseArr);
     }
     catch (err) {

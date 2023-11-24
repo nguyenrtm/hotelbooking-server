@@ -1,6 +1,4 @@
 const db = require('../config/db')
-const hotelService = require('../services/hotelService')
-const cityService = require('../services/cityService')
 const reservationService = require('../services/reservationService')
 
 const create_reservation = async (req, res) => {
@@ -15,7 +13,8 @@ const create_reservation = async (req, res) => {
             create_date: new Date(),
             start_date: new Date(body.start_date),
             end_date: new Date(body.end_date),
-            feedback: null
+            feedback: null,
+            total_cost: body.total_cost
         };
         const response = db.collection("reservations").add(reservationJson);
         console.log(response)
