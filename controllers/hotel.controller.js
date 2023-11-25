@@ -29,7 +29,8 @@ const getAllForSearch = async (req, res) => {
                 name: doc.data().name,
                 id: doc.id,
                 city_id: doc.data().city_id,
-                city_name: cities[doc.data().city_id]
+                city_name: cities[doc.data().city_id].name,
+                country: cities[doc.data().city_id].country
             };
             
             responseArr.push(data);
@@ -38,6 +39,27 @@ const getAllForSearch = async (req, res) => {
     } catch (err) {
         res.send(err);
     }
+}
+
+const getSuggested = async (req, res) => {
+    try {
+        const snapshot = await db.collection("hotels").get();
+        let responseArr = [];
+        snapshot.forEach(doc => {
+            const data = hotelService
+                .getHotelById(doc.id)
+                .then(data => {
+                    data.id = doc.id;
+                    responseArr.push(data);
+                    if (responseArr.length === 2)
+                        res.send(responseArr);
+                });
+        });
+        // res.send(responseArr);
+    } catch (err) {
+        res.send(err);
+    }
+
 }
 
 const createHotel =  async (req, res) => {
@@ -93,7 +115,6 @@ const search = async (req, res) => {
             console.log(dummy)
             dummy.id = hotels[i].id
             dummy.is_favorite = !!fav[hotels[i].id];
-            dummy.city_name = cities[dummy.city_id]
             let room_quantity = 0
             let ppl_quantity = 0
             for (let type in dummy.rooms) {
@@ -137,17 +158,17 @@ const getFavourites = async (req, res) => {
     try {
         console.log(req.query.user_id)
         const snapshot = await db.collection("favourites").where("user_id", "==", req.query.user_id).get();
-        const hotels = await hotelService.getHotels();
-        const cities = await cityService.getCities();
         let responseArr = [];
         snapshot.forEach(doc => {
-            const data = doc.data();
-            // data.id = doc.id;
-            data.hotel_name = hotels[data.hotel_id].name;
-            data.city_name = cities[hotels[data.hotel_id].city_id];
-            responseArr.push(data);
+            console.log(doc.data())
+            hotelService.getHotelById(doc.data().hotel_id).then(data => {
+                console.log(data)
+                data.id = doc.id;
+                console.log(data)
+                responseArr.push(data);
+                res.send(responseArr)
+            })
         });
-        res.send(responseArr);
     }
     catch (err) {
         res.send(err)
@@ -181,6 +202,7 @@ const deleteFavourite = async (req, res) => {
 module.exports = {
     getAll,
     getAllForSearch,
+    getSuggested,
     createHotel,
     getHotelById,
     search,

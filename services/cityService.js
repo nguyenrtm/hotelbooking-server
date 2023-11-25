@@ -4,7 +4,7 @@ const getCities = async () => {
     const snapshot = await db.collection("cities").get();
     let result = {};
     snapshot.forEach(doc => {
-        result[doc.id] = doc.data().name;
+        result[doc.id] = doc.data()
     });
     return result;
 }

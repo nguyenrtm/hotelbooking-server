@@ -4,6 +4,9 @@ const hotel_controller = require('../controllers/hotel.controller')
 router.route("/")
     .get(hotel_controller.getAllForSearch)
 
+router.route('/suggest')
+    .get(hotel_controller.getSuggested)
+
 router.route("/create")
     .post(hotel_controller.createHotel)
 
