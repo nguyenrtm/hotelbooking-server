@@ -1,4 +1,5 @@
 const db = require('../config/db')
+const reservationService = require('../services/reservationService')
 
 const create_reservation = async (req, res) => {
     try {
@@ -12,6 +13,8 @@ const create_reservation = async (req, res) => {
             create_date: new Date(),
             start_date: new Date(body.start_date),
             end_date: new Date(body.end_date),
+            feedback: null,
+            total_cost: body.total_cost
         };
         const response = db.collection("reservations").add(reservationJson);
         console.log(response)
@@ -22,16 +25,58 @@ const create_reservation = async (req, res) => {
     }
 }
 
-const get_history = async (req, res) => {
+const get_active = async (req, res) => {
     try {
         const id = req.params.id;
-        const snapshot = await db.collection("reservations").where("user_id", "==", id.toString()).get();
-        let responseArr = [];
-        snapshot.forEach(doc => {
-            const data = doc.data();
-            data.id = doc.id;
-            responseArr.push(data);
-        });
+        const snapshot = await db.collection("reservations")
+            .where("user_id", "==", id.toString())
+            .where("start_date", ">=", new Date())
+            .where("is_cancelled", "==", false)
+            .get();
+        const responseArr = await reservationService.create_history_response(snapshot)
+        res.send(responseArr);
+    } catch (err) {
+        res.send(err)
+    }
+}
+
+const get_rated = async (req, res) => {
+    try {
+        const id = req.params.id;
+        const snapshot = await db.collection("reservations")
+            .where("user_id", "==", id.toString())
+            .where("start_date", "<", new Date())
+            .get();
+        const responseArr = await reservationService.create_history_response(snapshot, true)
+        res.send(responseArr)
+    } catch (err) {
+        res.send(err)
+    }
+}
+
+const get_not_rated = async (req, res) => {
+    try {
+        const id = req.params.id
+        const snapshot = await db.collection("reservations")
+            .where("user_id", "==", id.toString())
+            .where("start_date", "<", new Date())
+            .where("feedback", "==", null)
+            .get();
+        const responseArr = await reservationService.create_history_response(snapshot)
+        res.send(responseArr)
+    } catch (err) {
+        res.send(err)
+    }
+}
+
+const get_cancelled = async (req, res) => {
+    try {
+        const id = req.params.id;
+        const snapshot = await db.collection("reservations")
+            .where("user_id", "==", id.toString())
+            .where("is_cancelled", "==", true)
+            .get();
+        const responseArr = await reservationService.create_history_response(snapshot)
         res.send(responseArr);
     } catch (error) {
         res.send(error)
@@ -69,13 +114,11 @@ const create_feedback = async (req, res) => {
         await db
             .collection("reservations")
             .doc(body.reservation_id)
-            .set(
-                {feedback: {
+            .update({feedback: {
                     comment: body.comment,
                     ratings: body.ratings
-                }},
-                {merge: true}
-            )
+                }
+            })
         
         res.send(response)
     } catch (error) {
@@ -85,7 +128,10 @@ const create_feedback = async (req, res) => {
 
 module.exports = {
     create_reservation,
-    get_history,
+    get_active,
+    get_rated,
+    get_not_rated,
+    get_cancelled,
     cancel_reservation,
     create_feedback,
 }
