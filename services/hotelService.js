@@ -11,19 +11,16 @@ const getHotels = async () => {
 }
 
 const getHotelById = async (hotel_id) => {
-    console.log(hotel_id)
     const hotel = await db.collection("hotels").doc(hotel_id).get();
     const result = hotel.data();
-    console.log(result)
     result.min_price = 0;
     for (let type in result.rooms) {
         if (result.min_price > result.rooms[type].price || result.min_price === 0)
             result.min_price = result.rooms[type].price
     }
-    console.log(result)
     result.city_name = (await cityService.getCities())[result.city_id].name
     result.country = (await cityService.getCities())[result.city_id].country
-    console.log(result)
+    // console.log(result)
     return result;
 }
 
@@ -48,7 +45,7 @@ const getHotelByIdInRange = async (hotel_id, start_date, end_date) => {
             }
         }
     })
-    console.log(result.rooms)
+    // console.log(result.rooms)
     return result
 }
 
