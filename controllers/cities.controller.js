@@ -170,6 +170,7 @@ const create_city = async (req, res) => {
     try {
         console.log(req.body);
         const cityJson = {
+            country: req.body.country,
             name: req.body.name,
         };
         const response =  db.collection("cities").add(cityJson);
