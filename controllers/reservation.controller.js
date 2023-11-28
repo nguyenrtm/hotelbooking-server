@@ -3,7 +3,7 @@ const reservationService = require('../services/reservationService')
 
 const create_reservation = async (req, res) => {
     try {
-        console.log(req.body)
+        // console.log(req.body)
         const body = req.body;
         const reservationJson = {
             user_id: body.user_id.toString(),
@@ -17,7 +17,7 @@ const create_reservation = async (req, res) => {
             total_cost: body.total_cost
         };
         const response = db.collection("reservations").add(reservationJson);
-        console.log(response)
+        // console.log(response)
         res.send(response);
     } catch (error) {
         console.log(error)
@@ -98,13 +98,13 @@ const create_feedback = async (req, res) => {
     try {
         const body = req.body;
         const reservation = await db.collection("reservations").doc(body.reservation_id).get();
-        console.log(reservation.data().hotel_id)
+        // console.log(reservation.data().hotel_id)
         const hotel = await db.collection("hotels").doc(reservation.data().hotel_id).get();
         const ratings = hotel.data().ratings;
         // todos: recalculate hotel's rating
         for (let i in body.ratings) {
             body.ratings[i] = parseFloat(body.ratings[i]);
-            console.log(body.ratings[i])
+            // console.log(body.ratings[i])
             ratings[i] = (ratings[i] * ratings.count + body.ratings[i]) / (ratings.count + 1);
         }
         ratings.count += 1;

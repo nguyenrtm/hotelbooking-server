@@ -41,6 +41,14 @@ const getAllForSearch = async (req, res) => {
 
 const getSuggested = async (req, res) => {
     try {
+        const fav = {}
+        const fav_snap = await db.collection("favourites")
+            .where("user_id", "==", req.query.user_id)
+            .get()
+        fav_snap.forEach(doc => {
+            fav[doc.data().hotel_id] = true
+        })
+        
         const snapshot = await db.collection("hotels").get();
         let responseArr = [];
         snapshot.forEach(doc => {
@@ -48,8 +56,9 @@ const getSuggested = async (req, res) => {
                 .getHotelById(doc.id)
                 .then(data => {
                     data.id = doc.id;
+                    data.is_favorite = !!fav[doc.id];
                     responseArr.push(data);
-                    if (responseArr.length === 2)
+                    if (responseArr.length === 3)
                         res.send(responseArr);
                 });
         });
@@ -153,10 +162,13 @@ const getFavourites = async (req, res) => {
         const snapshot = await db.collection("favourites").where("user_id", "==", req.query.user_id).get();
         const promises = [];
         
+        // console.log(snapshot)
+        
         snapshot.forEach(doc => {
             const promise = hotelService.getHotelById(doc.data().hotel_id)
                 .then(data => {
                     data.id = doc.id;
+                    data.hotel_id = doc.data().hotel_id;
                     return data;
                 });
             
@@ -170,6 +182,7 @@ const getFavourites = async (req, res) => {
             })
             .catch(err => {
                 // Handle any errors that occurred during promise execution
+                console.log(err)
                 res.status(500).send('An error occurred');
             });
         
@@ -181,11 +194,18 @@ const getFavourites = async (req, res) => {
 }
 
 const addFavourite = async (req, res) => {
-    try {
-        const response = db.collection("favourites").add(req.query);
-        res.send(response);
-    } catch (err) {
-        res.send(err)
+    const document = db.collection("favourites").where("user_id", "==", req.query.user_id).where("hotel_id", "==", req.query.hotel_id);
+    const snapshot = await document.get();
+    if (snapshot.empty) {
+        try {
+            const response = db.collection("favourites").add(req.query);
+            res.send(response);
+        } catch (err) {
+            res.send(err)
+        }
+    }
+    else {
+        res.send("already exist")
     }
 }
 

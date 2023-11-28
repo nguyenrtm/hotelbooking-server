@@ -13,6 +13,8 @@ const getHotels = async () => {
 const getHotelById = async (hotel_id) => {
     const hotel = await db.collection("hotels").doc(hotel_id).get();
     const result = hotel.data();
+    if (!result)
+        return null;
     result.min_price = 0;
     for (let type in result.rooms) {
         if (result.min_price > result.rooms[type].price || result.min_price === 0)
@@ -38,8 +40,10 @@ const getHotelByIdInRange = async (hotel_id, start_date, end_date) => {
     })
     const result = await getHotelById(hotel_id)
     q.forEach(rev => {
-        if (!set.has(rev.id)) {
+        if (!set.has(rev.id) && !rev.data().is_cancelled) {
             for (let type in rev.data().rooms) {
+                if (!result.rooms[type])
+                    continue
                 result.rooms[type].quantity -= rev.data().rooms[type]
                 // console.log(result.rooms[type].quantity)
             }
