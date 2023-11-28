@@ -161,12 +161,14 @@ const search = async (req, res) => {
 
 const getFeedbacks = async (req, res) => {
     try {
+        const hotels = await hotelService.getHotels();
+        const cities = await cityService.getCities();
         const id = req.params.id;
         const snapshot = await db.collection("reservations")
             .where("hotel_id", "==", id.toString())
             .where("feedback", "!=", null)
             .get();
-        let responseArr = await reservationService.create_history_response(snapshot);
+        let responseArr = await reservationService.create_history_response(snapshot, hotels, cities);
         
         res.send(responseArr);
     }
