@@ -183,33 +183,24 @@ const getFavourites = async (req, res) => {
         const snapshot = await db.collection("favourites").where("user_id", "==", req.query.user_id).get();
         const promises = [];
         
-        const hotelSnap = await db.collection("hotels").get();
-        const reservationsSnap = await db.collection("reservations").get();
-        
-        // console.log(snapshot)
+        const hotels = await hotelService.getHotels();
+        const cities = await cityService.getCities();
         
         snapshot.forEach(doc => {
-            const promise = hotelService.getHotelById(doc.data().hotel_id)
-                .then(data => {
-                    data.id = doc.id;
-                    data.hotel_id = doc.data().hotel_id;
-                    return data;
-                });
-            
-            promises.push(promise);
+            const dummy = hotels[doc.data().hotel_id];
+            dummy.hotel_id = doc.data().hotel_id;
+            dummy.id = doc.id;
+            dummy.city_name = cities[dummy.city_id].name;
+            dummy.country = cities[dummy.city_id].country;
+            dummy.min_price = 0;
+            for (let type in dummy.rooms) {
+                if (dummy.min_price > dummy.rooms[type].price || dummy.min_price === 0)
+                    dummy.min_price = dummy.rooms[type].price
+            }
+            promises.push(dummy);
         });
-
-        Promise.all(promises)
-            .then(responseArr => {
-                // Send the response after all promises are resolved
-                res.send(responseArr);
-            })
-            .catch(err => {
-                // Handle any errors that occurred during promise execution
-                console.log(err)
-                res.status(500).send('An error occurred');
-            });
         
+        res.send(promises)
     }
     catch (err) {
         res.send(err)
