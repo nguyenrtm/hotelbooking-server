@@ -1,5 +1,7 @@
 const db = require('../config/db')
 const reservationService = require('../services/reservationService')
+const hotelService = require('../services/hotelService')
+const cityService = require('../services/cityService')
 
 const create_reservation = async (req, res) => {
     try {
@@ -27,13 +29,15 @@ const create_reservation = async (req, res) => {
 
 const get_active = async (req, res) => {
     try {
+        const hotels = await hotelService.getHotels();
+        const cities = await cityService.getCities();
         const id = req.params.id;
         const snapshot = await db.collection("reservations")
             .where("user_id", "==", id.toString())
             .where("start_date", ">=", new Date())
             .where("is_cancelled", "==", false)
             .get();
-        const responseArr = await reservationService.create_history_response(snapshot)
+        const responseArr = await reservationService.create_history_response(snapshot, hotels, cities)
         res.send(responseArr);
     } catch (err) {
         res.send(err)
@@ -42,12 +46,14 @@ const get_active = async (req, res) => {
 
 const get_rated = async (req, res) => {
     try {
+        const hotels = await hotelService.getHotels();
+        const cities = await cityService.getCities();
         const id = req.params.id;
         const snapshot = await db.collection("reservations")
             .where("user_id", "==", id.toString())
             .where("start_date", "<", new Date())
             .get();
-        const responseArr = await reservationService.create_history_response(snapshot, true)
+        const responseArr = await reservationService.create_history_response(snapshot, hotels, cities, true)
         res.send(responseArr)
     } catch (err) {
         res.send(err)
@@ -56,13 +62,15 @@ const get_rated = async (req, res) => {
 
 const get_not_rated = async (req, res) => {
     try {
+        const hotels = await hotelService.getHotels();
+        const cities = await cityService.getCities();
         const id = req.params.id
         const snapshot = await db.collection("reservations")
             .where("user_id", "==", id.toString())
             .where("start_date", "<", new Date())
             .where("feedback", "==", null)
             .get();
-        const responseArr = await reservationService.create_history_response(snapshot)
+        const responseArr = await reservationService.create_history_response(snapshot, hotels, cities)
         res.send(responseArr)
     } catch (err) {
         res.send(err)
@@ -71,12 +79,14 @@ const get_not_rated = async (req, res) => {
 
 const get_cancelled = async (req, res) => {
     try {
+        const hotels = await hotelService.getHotels();
+        const cities = await cityService.getCities();
         const id = req.params.id;
         const snapshot = await db.collection("reservations")
             .where("user_id", "==", id.toString())
             .where("is_cancelled", "==", true)
             .get();
-        const responseArr = await reservationService.create_history_response(snapshot)
+        const responseArr = await reservationService.create_history_response(snapshot, hotels, cities)
         res.send(responseArr);
     } catch (error) {
         res.send(error)

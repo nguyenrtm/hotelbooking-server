@@ -1,5 +1,4 @@
 const db = require("../config/db");
-const cityService = require("./cityService");
 
 const getHotels = async () => {
     const snapshot = await db.collection("hotels").get();
@@ -20,38 +19,37 @@ const getHotelById = async (hotel_id) => {
         if (result.min_price > result.rooms[type].price || result.min_price === 0)
             result.min_price = result.rooms[type].price
     }
-    result.city_name = (await cityService.getCities())[result.city_id].name
-    result.country = (await cityService.getCities())[result.city_id].country
+    const city = await db.collection("cities").doc(result.city_id).get()
+    result.city_name = city.data().name
+    result.country = city.data().country
     // console.log(result)
     return result;
 }
 
 const getHotelByIdInRange = async (hotel_id, start_date, end_date) => {
-    const reservations = db.collection("reservations").where("hotel_id", "==", hotel_id)
-    const q = await reservations.get()
-    const q1 = await reservations.where("start_date", ">=", end_date).get()
-    const q2 = await reservations.where("end_date", "<=", start_date).get()
-    const set = new Set()
-    q1.forEach(rev => {
-        set.add(rev.id)
-    })
-    q2.forEach(rev => {
-        set.add(rev.id)
-    })
-    const result = await getHotelById(hotel_id)
-    q.forEach(rev => {
-        if (!set.has(rev.id) && !rev.data().is_cancelled) {
-            for (let type in rev.data().rooms) {
-                if (!result.rooms[type])
-                    continue
-                result.rooms[type].quantity -= rev.data().rooms[type]
-                // console.log(result.rooms[type].quantity)
+    const reservationsSnapshot = await db
+        .collection("reservations")
+        .where("hotel_id", "==", hotel_id)
+        .get();
+    const result = await getHotelById(hotel_id);
+    
+    reservationsSnapshot.forEach((rev) => {
+        const reservation = rev.data();
+        if (
+            !reservation.is_cancelled &&
+            reservation.start_date.toDate() <= end_date &&
+            reservation.end_date.toDate() >= start_date
+        ) {
+            for (let type in reservation.rooms) {
+                if (result.rooms[type]) {
+                    result.rooms[type].quantity -= reservation.rooms[type];
+                }
             }
         }
-    })
-    // console.log(result.rooms)
-    return result
-}
+    });
+    
+    return result;
+};
 
 module.exports = {
     getHotels,

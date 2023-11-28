@@ -94,51 +94,70 @@ const getHotelById = async (req, res) => {
 
 const search = async (req, res) => {
     try {
-        const fav = {}
+        const fav = {};
         const fav_snap = await db.collection("favourites")
             .where("user_id", "==", req.query.user_id)
-            .get()
+            .get();
+        
         fav_snap.forEach(doc => {
-            fav[doc.data().hotel_id] = true
-        })
+            fav[doc.data().hotel_id] = true;
+        });
+        
         const start_date = new Date(req.query.start_date);
         const end_date = new Date(req.query.end_date);
         const city = req.query.city;
         
-        const document = db.collection("hotels").where("city_id", "==", city);
-        const snapshot = await document.get();
+        const hotelsSnapshot = await db.collection("hotels")
+            .where("city_id", "==", city)
+            .get();
         
-        let responseArr = [];
-        let hotels = [];
-        snapshot.forEach(doc => {
-            hotels.push(doc)
-        });
-        for (let i in hotels) {
-            const dummy = await hotelService.getHotelByIdInRange(hotels[i].id, start_date, end_date)
-            // console.log(dummy)
-            dummy.id = hotels[i].id
-            dummy.is_favorite = !!fav[hotels[i].id];
-            let room_quantity = 0
-            let ppl_quantity = 0
+        const reservationsSnapshot = await db.collection("reservations").get();
+        
+        const responseArr = [];
+        
+        hotelsSnapshot.forEach(hotel => {
+            const dummy = hotel.data();
+            
+            reservationsSnapshot.forEach(reservation => {
+                const reservationData = reservation.data();
+                
+                if (reservationData.hotel_id === hotel.id &&
+                    !reservationData.is_cancelled &&
+                    reservationData.start_date.toDate() <= end_date &&
+                    reservationData.end_date.toDate() >= start_date) {
+                    
+                    for (let type in reservationData.rooms) {
+                        if (dummy.rooms[type]) {
+                            dummy.rooms[type].quantity -= reservationData.rooms[type];
+                        }
+                    }
+                }
+            });
+            
+            dummy.id = hotel.id;
+            dummy.is_favorite = !!fav[hotel.id];
+            
+            let room_quantity = 0;
+            let ppl_quantity = 0;
+            
             for (let type in dummy.rooms) {
-                room_quantity += dummy.rooms[type].quantity
-                ppl_quantity += dummy.rooms[type].quantity * dummy.rooms[type].capacity
+                room_quantity += dummy.rooms[type].quantity;
+                ppl_quantity += dummy.rooms[type].quantity * dummy.rooms[type].capacity;
             }
-            // console.log(room_quantity)
-            // console.log(ppl_quantity)
-            if (room_quantity >= parseInt(req.query.room_quantity)
-                && ppl_quantity >= parseInt(req.query.ppl_quantity)
-                || hotels[i].id === req.query.hotel_id) {
-                responseArr.push(dummy)
+            
+            if ((room_quantity >= parseInt(req.query.room_quantity) &&
+                    ppl_quantity >= parseInt(req.query.ppl_quantity)) ||
+                hotel.id === req.query.hotel_id) {
+                responseArr.push(dummy);
             }
-        }
-        // console.log(responseArr)
+        });
+        
         res.send(responseArr);
-    }
-    catch (error) {
+    } catch (error) {
         res.send(error);
     }
 }
+
 
 const getFeedbacks = async (req, res) => {
     try {
@@ -161,6 +180,9 @@ const getFavourites = async (req, res) => {
         // console.log(req.query.user_id)
         const snapshot = await db.collection("favourites").where("user_id", "==", req.query.user_id).get();
         const promises = [];
+        
+        const hotelSnap = await db.collection("hotels").get();
+        const reservationsSnap = await db.collection("reservations").get();
         
         // console.log(snapshot)
         

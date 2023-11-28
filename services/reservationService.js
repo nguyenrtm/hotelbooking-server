@@ -1,9 +1,9 @@
 const hotelService = require("./hotelService");
 const cityService = require("./cityService");
 
-const create_history_response = async (snapshot, getRated = false) => {
-    const hotels = await hotelService.getHotels();
-    const cities = await cityService.getCities();
+const create_history_response = async (snapshot, hotels, cities, getRated = false) => {
+    // const hotels = await hotelService.getHotels();
+    // const cities = await cityService.getCities();
     let res = [];
     snapshot.forEach(doc => {
         const data = doc.data();
