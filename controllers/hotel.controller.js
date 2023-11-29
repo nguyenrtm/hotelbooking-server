@@ -41,34 +41,30 @@ const getAllForSearch = async (req, res) => {
 
 const getSuggested = async (req, res) => {
     try {
-        const fav = {}
+        const fav = {};
         const fav_snap = await db.collection("favourites")
             .where("user_id", "==", req.query.user_id)
-            .get()
-        fav_snap.forEach(doc => {
-            fav[doc.data().hotel_id] = true
-        })
+            .get();
         
-        const snapshot = await db.collection("hotels").get();
-        let responseArr = [];
-        snapshot.forEach(doc => {
-            hotelService
-                .getHotelById(doc.id)
-                .then(data => {
-                    data.is_favorite = !!fav[doc.id];
-                    responseArr.push(data);
-                    console.log(data)
-                    if (responseArr.length === 3) {
-                        res.send(responseArr);
-                        return;
-                    }
-                });
+        fav_snap.forEach(doc => {
+            fav[doc.data().hotel_id] = true;
         });
+        
+        const snapshot = await db.collection("hotels").limit(3).get();
+        const responseArr = [];
+        
+        for (const doc of snapshot.docs) {
+            const data = await hotelService.getHotelById(doc.id);
+            data.is_favorite = !!fav[doc.id];
+            responseArr.push(data);
+        }
+        
+        res.send(responseArr);
     } catch (err) {
         res.send(err);
     }
+};
 
-}
 
 const createHotel =  async (req, res) => {
     try {
