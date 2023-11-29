@@ -55,11 +55,13 @@ const getSuggested = async (req, res) => {
             hotelService
                 .getHotelById(doc.id)
                 .then(data => {
-                    data.id = doc.id;
                     data.is_favorite = !!fav[doc.id];
                     responseArr.push(data);
-                    if (responseArr.length === 3)
+                    console.log(data)
+                    if (responseArr.length === 3) {
                         res.send(responseArr);
+                        return;
+                    }
                 });
         });
     } catch (err) {
@@ -134,7 +136,7 @@ const search = async (req, res) => {
                 }
             });
             
-            dummy.id = hotel.id;
+            dummy.hotel_id = hotel.id;
             dummy.is_favorite = !!fav[hotel.id];
             
             let room_quantity = 0;
@@ -189,7 +191,7 @@ const getFavourites = async (req, res) => {
         snapshot.forEach(doc => {
             const dummy = hotels[doc.data().hotel_id];
             dummy.hotel_id = doc.data().hotel_id;
-            dummy.id = doc.id;
+            // dummy.id = doc.id;
             dummy.city_name = cities[dummy.city_id].name;
             dummy.country = cities[dummy.city_id].country;
             dummy.min_price = 0;

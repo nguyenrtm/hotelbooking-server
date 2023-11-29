@@ -16,10 +16,11 @@ describe("GET hotel/search", () => {
                 // res.body[0].should.have.property('id');
                 if (res.body.length > 0) {
                     res.body[0].should.have.property('is_favorite');
+                    res.body[0].should.have.property('hotel_id');
                 }
                 done();
             })
-    }).timeout(10000)
+    }).timeout(5000)
 })
 
 describe("GET hotel/", () => {
@@ -148,7 +149,7 @@ describe("GET hotel/suggest", () => {
                 res.should.have.status(200);
                 // console.log(res.body)
                 if (res.body.length > 0) {
-                    res.body[0].should.have.property('id');
+                    res.body[0].should.have.property('hotel_id');
                     res.body[0].should.have.property('name');
                     res.body[0].should.have.property('ratings').have.property('count');
                     res.body[0].should.have.property('rooms');

@@ -22,6 +22,7 @@ const getHotelById = async (hotel_id) => {
     const city = await db.collection("cities").doc(result.city_id).get()
     result.city_name = city.data().name
     result.country = city.data().country
+    result.hotel_id = hotel_id
     // console.log(result)
     return result;
 }
