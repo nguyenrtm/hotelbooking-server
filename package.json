@@ -13,6 +13,7 @@
   "dependencies": {
     "@firebase/testing": "^0.20.11",
     "chai": "^4.3.10",
+    "chai-http": "^4.4.0",
     "cors": "^2.8.5",
     "express": "^4.18.2",
     "firebase": "^10.5.0",

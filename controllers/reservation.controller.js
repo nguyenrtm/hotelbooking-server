@@ -1,9 +1,11 @@
 const db = require('../config/db')
 const reservationService = require('../services/reservationService')
+const hotelService = require('../services/hotelService')
+const cityService = require('../services/cityService')
 
 const create_reservation = async (req, res) => {
     try {
-        console.log(req.body)
+        // console.log(req.body)
         const body = req.body;
         const reservationJson = {
             user_id: body.user_id.toString(),
@@ -17,7 +19,7 @@ const create_reservation = async (req, res) => {
             total_cost: body.total_cost
         };
         const response = db.collection("reservations").add(reservationJson);
-        console.log(response)
+        // console.log(response)
         res.send(response);
     } catch (error) {
         console.log(error)
@@ -27,13 +29,15 @@ const create_reservation = async (req, res) => {
 
 const get_active = async (req, res) => {
     try {
+        const hotels = await hotelService.getHotels();
+        const cities = await cityService.getCities();
         const id = req.params.id;
         const snapshot = await db.collection("reservations")
             .where("user_id", "==", id.toString())
             .where("start_date", ">=", new Date())
             .where("is_cancelled", "==", false)
             .get();
-        const responseArr = await reservationService.create_history_response(snapshot)
+        const responseArr = await reservationService.create_history_response(snapshot, hotels, cities)
         res.send(responseArr);
     } catch (err) {
         res.send(err)
@@ -42,12 +46,14 @@ const get_active = async (req, res) => {
 
 const get_rated = async (req, res) => {
     try {
+        const hotels = await hotelService.getHotels();
+        const cities = await cityService.getCities();
         const id = req.params.id;
         const snapshot = await db.collection("reservations")
             .where("user_id", "==", id.toString())
             .where("start_date", "<", new Date())
             .get();
-        const responseArr = await reservationService.create_history_response(snapshot, true)
+        const responseArr = await reservationService.create_history_response(snapshot, hotels, cities, true)
         res.send(responseArr)
     } catch (err) {
         res.send(err)
@@ -56,13 +62,15 @@ const get_rated = async (req, res) => {
 
 const get_not_rated = async (req, res) => {
     try {
+        const hotels = await hotelService.getHotels();
+        const cities = await cityService.getCities();
         const id = req.params.id
         const snapshot = await db.collection("reservations")
             .where("user_id", "==", id.toString())
             .where("start_date", "<", new Date())
             .where("feedback", "==", null)
             .get();
-        const responseArr = await reservationService.create_history_response(snapshot)
+        const responseArr = await reservationService.create_history_response(snapshot, hotels, cities)
         res.send(responseArr)
     } catch (err) {
         res.send(err)
@@ -71,12 +79,14 @@ const get_not_rated = async (req, res) => {
 
 const get_cancelled = async (req, res) => {
     try {
+        const hotels = await hotelService.getHotels();
+        const cities = await cityService.getCities();
         const id = req.params.id;
         const snapshot = await db.collection("reservations")
             .where("user_id", "==", id.toString())
             .where("is_cancelled", "==", true)
             .get();
-        const responseArr = await reservationService.create_history_response(snapshot)
+        const responseArr = await reservationService.create_history_response(snapshot, hotels, cities)
         res.send(responseArr);
     } catch (error) {
         res.send(error)
@@ -98,13 +108,13 @@ const create_feedback = async (req, res) => {
     try {
         const body = req.body;
         const reservation = await db.collection("reservations").doc(body.reservation_id).get();
-        console.log(reservation.data().hotel_id)
+        // console.log(reservation.data().hotel_id)
         const hotel = await db.collection("hotels").doc(reservation.data().hotel_id).get();
         const ratings = hotel.data().ratings;
         // todos: recalculate hotel's rating
         for (let i in body.ratings) {
             body.ratings[i] = parseFloat(body.ratings[i]);
-            console.log(body.ratings[i])
+            // console.log(body.ratings[i])
             ratings[i] = (ratings[i] * ratings.count + body.ratings[i]) / (ratings.count + 1);
         }
         ratings.count += 1;
