@@ -17,6 +17,7 @@ describe("GET hotel/search", () => {
                 if (res.body.length > 0) {
                     res.body[0].should.have.property('is_favorite');
                     res.body[0].should.have.property('hotel_id');
+                    res.body[0].should.not.have.property('id');
                 }
                 done();
             })
@@ -43,6 +44,8 @@ describe("GET hotel/:id", () => {
         body.should.have.property('city_name');
         body.should.have.property('country');
         body.should.have.property('min_price');
+        body.should.have.property('hotel_id');
+        body.should.not.have.property('id');
     }
     describe("exclude start_date and end_date", () => {
         it("get JW Marriott info", (done) => {
