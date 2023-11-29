@@ -15,9 +15,12 @@ describe("GET hotel/search", () => {
                 res.should.have.status(200);
                 // res.body[0].should.have.property('id');
                 if (res.body.length > 0) {
-                    res.body[0].should.have.property('is_favorite');
                     res.body[0].should.have.property('hotel_id');
                     res.body[0].should.not.have.property('id');
+                    res.body[0].should.have.property('city_name');
+                    res.body[0].should.have.property('country');
+                    res.body[0].should.have.property('min_price');
+                    res.body[0].should.have.property('is_favorite');
                 }
                 done();
             })
@@ -76,7 +79,7 @@ describe("GET hotel/:id", () => {
     describe("include start_date and end_date", () => {
         it("get JW Marriott info", (done) => {
             chai.request(app)
-                .get('/hotel/MARDKwwXTzoC3ohydrRS?start_date=2023-11-20&end_date=2023-12-21')
+                .get('/hotel/MARDKwwXTzoC3ohydrRS?start_date=2022-11-20&end_date=2023-12-21')
                 .end((err, res) => {
                     if (err) return done(err);
                     res.should.have.status(200);

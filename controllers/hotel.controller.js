@@ -110,11 +110,21 @@ const search = async (req, res) => {
             .get();
         
         const reservationsSnapshot = await db.collection("reservations").get();
+        const cities = await cityService.getCities();
         
         const responseArr = [];
         
         hotelsSnapshot.forEach(hotel => {
             const dummy = hotel.data();
+            
+            dummy.min_price = 0;
+            for (let type in dummy.rooms) {
+                if (dummy.min_price > dummy.rooms[type].price || dummy.min_price === 0)
+                    dummy.min_price = dummy.rooms[type].price
+            }
+
+            dummy.city_name = cities[dummy.city_id].name;
+            dummy.country = cities[dummy.city_id].country;
             
             reservationsSnapshot.forEach(reservation => {
                 const reservationData = reservation.data();
