@@ -52,6 +52,7 @@ const get_rated = async (req, res) => {
         const snapshot = await db.collection("reservations")
             .where("user_id", "==", id.toString())
             .where("start_date", "<", new Date())
+            .where("is_cancelled", "==", false)
             .get();
         const responseArr = await reservationService.create_history_response(snapshot, hotels, cities, true)
         res.send(responseArr)
@@ -69,6 +70,7 @@ const get_not_rated = async (req, res) => {
             .where("user_id", "==", id.toString())
             .where("start_date", "<", new Date())
             .where("feedback", "==", null)
+            .where("is_cancelled", "==", false)
             .get();
         const responseArr = await reservationService.create_history_response(snapshot, hotels, cities)
         res.send(responseArr)
