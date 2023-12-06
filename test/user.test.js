@@ -17,6 +17,9 @@ describe('GET /user', () => {
             .end((err, res) => {
                 suite_assertion(err, res);
                 res.body.should.be.a('array');
+                if (res.body.length > 0) {
+                    res.body[0].should.have.property('uid');
+                }
                 done();
             });
     });
