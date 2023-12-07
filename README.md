@@ -1,6 +1,6 @@
-# Backend server for Android mobile app for hotel booking.
+# Backend server for Android mobile app for hotel booking
 
-Backend server for an Android hotel booking mobile app.
+Backend server for an Android hotel booking mobile app. <br />
 Built with NodeJS, Firestore. Tested with Chai.
 
 ## Contributors
